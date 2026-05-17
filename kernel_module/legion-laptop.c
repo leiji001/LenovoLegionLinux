@@ -5296,10 +5296,12 @@ static int legion_platform_profile_get(struct platform_profile_handler *pprof,
 	case LEGION_WMI_POWERMODE_LOW_POWER:
 		*profile = PLATFORM_PROFILE_LOW_POWER;
 		break;
+#ifdef PLATFORM_PROFILE_CUSTOM
 	case LEGION_WMI_POWERMODE_CUSTOM:
 		*profile = PLATFORM_PROFILE_CUSTOM;
 		break;
-#if LINUX_VERSION_CODE >= KERNEL_VERSION(6, 19, 0)
+#endif
+#ifdef PLATFORM_PROFILE_MAX_POWER
 	case LEGION_WMI_POWERMODE_MAX_POWER:
 		*profile = PLATFORM_PROFILE_MAX_POWER;
 		break;
@@ -5337,10 +5339,12 @@ static int legion_platform_profile_set(struct platform_profile_handler *pprof,
 	case PLATFORM_PROFILE_LOW_POWER:
 		powermode = LEGION_WMI_POWERMODE_LOW_POWER;
 		break;
+#ifdef PLATFORM_PROFILE_CUSTOM
 	case PLATFORM_PROFILE_CUSTOM:
 		powermode = LEGION_WMI_POWERMODE_CUSTOM;
 		break;
-#if LINUX_VERSION_CODE >= KERNEL_VERSION(6, 19, 0)
+#endif
+#ifdef PLATFORM_PROFILE_MAX_POWER
 	case PLATFORM_PROFILE_MAX_POWER:
 		powermode = LEGION_WMI_POWERMODE_MAX_POWER;
 		break;
@@ -5362,9 +5366,11 @@ static int legion_platform_profile_probe(void *drvdata, unsigned long *choices)
 	set_bit(PLATFORM_PROFILE_LOW_POWER, choices);
 	set_bit(PLATFORM_PROFILE_BALANCED, choices);
 	set_bit(PLATFORM_PROFILE_PERFORMANCE, choices);
+#ifdef PLATFORM_PROFILE_CUSTOM
 	if (conf_has_custom_powermode && conf_access_method_powermode == ACCESS_METHOD_WMI)
 		set_bit(PLATFORM_PROFILE_CUSTOM, choices);
-#if LINUX_VERSION_CODE >= KERNEL_VERSION(6, 19, 0)
+#endif
+#ifdef PLATFORM_PROFILE_MAX_POWER
 	if (conf_has_extreme_powermode && conf_access_method_powermode == ACCESS_METHOD_WMI)
 		set_bit(PLATFORM_PROFILE_MAX_POWER, choices);
 #endif
@@ -5405,16 +5411,20 @@ static int legion_platform_profile_init(struct legion_private *priv)
 		priv->platform_profile_handler.choices);
 	set_bit(PLATFORM_PROFILE_PERFORMANCE,
 		priv->platform_profile_handler.choices);
+#ifdef PLATFORM_PROFILE_CUSTOM
 	if (priv->conf->has_custom_powermode &&
 	    priv->conf->access_method_powermode == ACCESS_METHOD_WMI) {
 		set_bit(PLATFORM_PROFILE_CUSTOM,
 			priv->platform_profile_handler.choices);
 	}
+#endif
+#ifdef PLATFORM_PROFILE_MAX_POWER
 	if (priv->conf->has_extreme_powermode &&
 	    priv->conf->access_method_powermode == ACCESS_METHOD_WMI) {
 		set_bit(PLATFORM_PROFILE_MAX_POWER,
 			priv->platform_profile_handler.choices);
 	}
+#endif
 #endif
 
 #if LINUX_VERSION_CODE >= KERNEL_VERSION(6, 14, 0)
